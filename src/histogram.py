@@ -46,10 +46,10 @@ def get_pixel_location(img_shape,N_x,N_y):
     
     the following numpy functions can come in handy to develop this function:
     
-    1. np.arrange
+    1. np.arange
     2. np.meshgrid
     3. np.round to cast to integer values 
-    4. np.astype(uint16) as we want integer values for the coordinates
+    4. np.astype(np.uint16) as we want integer values for the coordinates
     
     Input:
     

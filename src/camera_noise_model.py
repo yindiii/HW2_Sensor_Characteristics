@@ -16,4 +16,10 @@ def simulate_noisy_images(images,gain,sigma_read,sigma_adc,fwc,num_ims=20):
         noisy_images(np.ndarray): (H, W, #colors, #images, #sensitivity)
     """
     
-    raise NotImplementedError
+    trials = np.ones(num_ims)
+    # first apply poisson noise and cap the photon count at the full-well capacity
+    noisy_images = gain[None,None,:,None,:] * np.minimum(np.random.poisson(trials[None,None,None,:,None] * images[:,:,:,None,None]), fwc)
+    # then add read noise
+    noisy_images += gain[None,None,:,None,:]**2 * sigma_read[None,None,:,None,None]*np.random.normal(size=noisy_images.shape) + sigma_adc[None,None,:,None,None]*np.random.normal(size=noisy_images.shape)
+    
+    return np.uint8(noisy_images)

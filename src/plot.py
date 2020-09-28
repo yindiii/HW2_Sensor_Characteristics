@@ -66,7 +66,7 @@ def plot_input_images(imgs,sensitivity):
     """
     raise NotImplementedError
 
-def plot_rgb_channel(img,sensitivy):
+def plot_rgb_channel(img, sensitivity):
     raise NotImplementedError
 
 def plot_images(data, sensitivity, statistic,color_channel):
@@ -90,23 +90,18 @@ def plot_images(data, sensitivity, statistic,color_channel):
     raise NotImplementedError
     
     
-def plot_relations(means, variances, skip_pixel, gain, color_idx):
+def plot_relations(means, variances, skip_pixel, sensitivity, color_idx):
     """
     this function plots the relationship between means and variance. 
     Because this data is so large, it is recommended that you skip
     some pixels to help see the pixels.
 
     args:
-        means (np.ndarray): the means of your data in the form of 
-        a numpy array that has the means of each filter.
-
-        variances (np.ndarray): the variances of your data in the form of 
-        a numpy array that has the variances of each filter.
-
-        numPixs (int): the number of pixels you want to skip when looking
-        at your data.
-
-        intg (str): 'high' or 'low' (used for titlying your graph mostly.)
+        means: contains the mean values with shape (200x300x3x6)
+        variances: variance of the images (200x300x3x6)
+        skip_pixel: amount of pixel skipped for visualization
+        sensitivity: sensitivity array with 1x6
+        color_idx: the color index (0 for red, 1 green, 2 for blue)
 
     returns:
         void, but show plots!

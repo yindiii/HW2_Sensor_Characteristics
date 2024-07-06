@@ -1,4 +1,3 @@
-import rawpy
 import numpy as np
 import glob
 import cv2
@@ -36,7 +35,18 @@ def plot_input_histogram(imgs,sensitivity):
         imgs(np.ndarray): 3-dimensional array containing one image per intensity setting (not all the 200)
     
     """
-    raise NotImplementedError
+    num_images = imgs.shape[2]
+    plt.figure(figsize=(15, 5))
+    
+    for i in range(num_images):
+        plt.subplot(1, num_images, i + 1)
+        plt.hist(imgs[:, :, i].ravel(), bins=256, alpha=0.8, ec="k", density=True)
+        plt.title(f'Sensitivity {sensitivity[i]}')
+        plt.xlabel('Pixel Intensity')
+        plt.ylabel('Density')
+    
+    plt.tight_layout()
+    plt.show()
         
 def plot_histograms_channels(img,sensitivity):
     """
@@ -49,7 +59,18 @@ def plot_histograms_channels(img,sensitivity):
     
     """
     
-    raise NotImplementedError
+    channels = ['Red', 'Green', 'Blue']
+    plt.figure(figsize=(15, 5))
+    
+    for i, channel in enumerate(channels):
+        plt.subplot(1, 3, i + 1)
+        plt.hist(img[:, :, i].ravel(), bins=256, alpha=0.8, ec="k", density=True)
+        plt.title(f'{channel} Channel\nSensitivity {sensitivity}')
+        plt.xlabel('Pixel Intensity')
+        plt.ylabel('Density')
+    
+    plt.tight_layout()
+    plt.show()
         
 def plot_input_images(imgs,sensitivity):
     """
@@ -64,10 +85,29 @@ def plot_input_images(imgs,sensitivity):
         sensitivity(np.ndarray): The sensitivy (gain) vector for the image database
     
     """
-    raise NotImplementedError
+    num_images = imgs.shape[2]
+    plt.figure(figsize=(15, 5))
+    
+    for i in range(num_images):
+        plt.subplot(1, num_images, i + 1)
+        plot_with_colorbar(imgs[:, :, i], vmax=255)
+        plt.title(f'Sensitivity {sensitivity[i]}')
+    
+    plt.tight_layout()
+    plt.show()
 
 def plot_rgb_channel(img, sensitivity):
-    raise NotImplementedError
+    channels = ['Red', 'Green', 'Blue']
+    plt.figure(figsize=(15, 5))
+    
+    for i, channel in enumerate(channels):
+        plt.subplot(1, 3, i + 1)
+        plt.imshow(img[:, :, i], cmap='gray', vmin=0, vmax=255)
+        plt.title(f'{channel} Channel\nSensitivity {sensitivity}')
+        plt.colorbar()
+    
+    plt.tight_layout()
+    plt.show()
 
 def plot_images(data, sensitivity, statistic,color_channel):
     """
@@ -87,7 +127,15 @@ def plot_images(data, sensitivity, statistic,color_channel):
         void, but show the plots!
 
     """
-    raise NotImplementedError
+    plt.figure(figsize=(15, 5))
+    
+    for i, sens in enumerate(sensitivity):
+        plt.subplot(1, len(sensitivity), i + 1)
+        plot_with_colorbar(data[:, :, color_channel, i], vmax=255)
+        plt.title(f'{statistic} - Sensitivity {sens}')
+    
+    plt.tight_layout()
+    plt.show()
     
     
 def plot_relations(means, variances, skip_pixel, sensitivity, color_idx):
@@ -106,7 +154,19 @@ def plot_relations(means, variances, skip_pixel, sensitivity, color_idx):
     returns:
         void, but show plots!
     """
-    raise NotImplementedError
+    plt.figure(figsize=(15, 5))
+    
+    for i, sens in enumerate(sensitivity):
+        plt.subplot(1, len(sensitivity), i + 1)
+        plt.scatter(means[::skip_pixel, ::skip_pixel, color_idx, i], 
+                    variances[::skip_pixel, ::skip_pixel, color_idx, i], 
+                    alpha=0.5)
+        plt.title(f'Sensitivity {sens}')
+        plt.xlabel('Mean')
+        plt.ylabel('Variance')
+    
+    plt.tight_layout()
+    plt.show()
         
 def plot_mean_variance_with_linear_fit(gain,delta,means,variances,skip_points=50,color_channel=0):
     """
@@ -130,7 +190,20 @@ def plot_mean_variance_with_linear_fit(gain,delta,means,variances,skip_points=50
     returns:
         void, but show plots!
     """
-    raise NotImplementedError
+    plt.figure(figsize=(15, 5))
+    
+    for i in range(means.shape[3]):
+        plt.subplot(1, means.shape[3], i + 1)
+        plt.scatter(means[::skip_points, ::skip_points, color_channel, i], 
+                    variances[::skip_points, ::skip_points, color_channel, i], 
+                    alpha=0.5)
+        plt.plot(means[:, :, color_channel, i], gain[color_channel, i] * means[:, :, color_channel, i] + delta[color_channel, i], 'r')
+        plt.title(f'Sensitivity {i}')
+        plt.xlabel('Mean')
+        plt.ylabel('Variance')
+    
+    plt.tight_layout()
+    plt.show()
     
 def plot_read_noise_fit(sigma_read, sigma_ADC, gain, delta, color_channel=0):
     """
@@ -151,4 +224,13 @@ def plot_read_noise_fit(sigma_read, sigma_ADC, gain, delta, color_channel=0):
         void, but show plots!
     """
     
-    raise NotImplementedError
+    plt.figure(figsize=(10, 5))
+    
+    plt.plot(gain[color_channel], delta[color_channel], 'o', label='Data')
+    plt.plot(gain[color_channel], sigma_read[color_channel] * gain[color_channel] + sigma_ADC[color_channel], 'r-', label='Fit')
+    plt.title('Read Noise Fit')
+    plt.xlabel('Gain')
+    plt.ylabel('Delta')
+    plt.legend()
+    
+    plt.show()

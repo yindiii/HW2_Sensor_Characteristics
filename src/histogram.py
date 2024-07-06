@@ -1,4 +1,3 @@
-import rawpy
 import numpy as np
 import glob
 import cv2
@@ -26,7 +25,18 @@ def plot_overlayed_hist(data,loc,sensitivity,size):
     output:
         void, but you should plot the graphs! hint: try looking at plt.hist
     """
-    raise NotImplementedError
+    y, x = loc
+    h, w = size
+    region = data[y:y+h, x:x+w, :, :, :]
+    plt.figure(figsize=(10, 6))
+    for i, sens in enumerate(sensitivity):
+        pixel_values = region[:, :, :, :, i].flatten()
+        plt.hist(pixel_values, bins=256, alpha=0.8, ec="k", density=True, label=f'Sensitivity {sens}')
+    plt.title('Overlayed histogram of pixel intensities')
+    plt.xlabel('Pixel intensity')
+    plt.ylabel('Density')
+    plt.legend()
+    plt.show()
 
 def get_pixel_location(img_shape,N_x,N_y):
     """
@@ -56,4 +66,10 @@ def get_pixel_location(img_shape,N_x,N_y):
     Output:
     
     """
-    raise NotImplementedError
+    height, width = img_shape   
+    x_coords = np.linspace(start=width // (N_x + 1), stop=width - width // (N_x + 1), num=N_x)
+    y_coords = np.linspace(start=height // (N_y + 1), stop=height - height // (N_y + 1), num=N_y)
+    x_coords = np.round(x_coords).astype(np.uint16)
+    y_coords = np.round(y_coords).astype(np.uint16)
+    X, Y = np.meshgrid(x_coords, y_coords)
+    return X, Y

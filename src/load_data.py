@@ -39,7 +39,23 @@ def load_data(folder,numImages=200,height=600,width=800):
     returns:
         imgs (np.array): The 200 images as monochromatic images in uint8 type format
     """
-    raise NotImplementedError
+
+    path = os.path.join('pic', 'HW2_data', folder, '*.raw')
+    raw_files = glob.glob(path)
+    #print(f"Found {len(raw_files)} raw files.")
+    
+    # Initialize an empty array to hold images
+    imgs = np.empty((numImages, height, width), dtype=np.uint8)
+    
+    # Load each raw image file
+    for i, file in enumerate(raw_files[:numImages]):
+        img = np.fromfile(file, dtype=np.uint8)
+        img = img.reshape((height, width))
+        imgs[i] = img
+    
+    imgs = np.transpose(imgs, (1, 2, 0))
+    
+    return imgs
 
 def load_dataset():
     """
@@ -55,4 +71,20 @@ def load_dataset():
         sensitivy (np.array): A numpy array containing [0,1,3,9,14,18]
     
     """
-    raise NotImplementedError
+    sensitivities = [0, 1, 3, 9, 14, 18]
+    dark_images = []
+    white_images = []
+    
+    for sensitivity in sensitivities:
+        dark_folder = f'dark{sensitivity}'
+        white_folder = f'gain{sensitivity}'
+        dark_imgs = load_data(dark_folder)
+        dark_images.append(dark_imgs)
+        white_imgs = load_data(white_folder)
+        white_images.append(white_imgs)
+    dark_images = np.array(dark_images)
+    white_images = np.array(white_images)
+    dark_images = np.stack(dark_images, axis=-1).transpose((0, 1, 2, 3))
+    white_images = np.stack(white_images, axis=-1).transpose((0, 1, 2, 3))
+    
+    return dark_images, white_images, np.array(sensitivities)

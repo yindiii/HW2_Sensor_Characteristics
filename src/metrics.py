@@ -16,7 +16,8 @@ def calc_mean(imgs):
         mean_imgs(np.ndarray): the mean value of images in relation to their bayer pattern
         filters. size should be (x dimension * y dimension * r g b)
     """
-    raise NotImplementedError
+    mean_imgs = np.mean(imgs, axis=3)
+    return mean_imgs
     
 
 def calc_var(imgs):
@@ -30,7 +31,8 @@ def calc_var(imgs):
         filters. size should be (x dimension * y dimension * r g b)
     """
 
-    raise NotImplementedError
+    var_imgs = np.var(imgs, axis=3)
+    return var_imgs
 
 def fit_linear_polynom_to_variance_mean(mean, var,th=200):
     """
@@ -45,7 +47,18 @@ def fit_linear_polynom_to_variance_mean(mean, var,th=200):
           delta(nd.array): the y-intercept of the polynomial fit. Should be of shape (Num_channel,Num_gain) for our data
     """
     
-    raise NotImplementedError
+    num_channels, num_gain = mean.shape[2], mean.shape[3]
+    gain = np.zeros((num_channels, num_gain))
+    delta = np.zeros((num_channels, num_gain))
+    
+    for i in range(num_channels):
+        for j in range(num_gain):
+            mask = mean[:, :, i, j] < th
+            p = np.polyfit(mean[:, :, i, j][mask].flatten(), var[:, :, i, j][mask].flatten(), 1)
+            gain[i, j] = p[0]
+            delta[i, j] = p[1]
+    
+    return gain, delta
 
 def fit_linear_polynom_to_read_noise(delta, gain):
     """
@@ -60,7 +73,16 @@ def fit_linear_polynom_to_read_noise(delta, gain):
           sigma_ADC(np.ndarray): the y-intercept of the linear fit - #(Num_Channel)
     """
     
-    raise NotImplementedError
+    num_channels = delta.shape[0]
+    sigma_read = np.zeros(num_channels)
+    sigma_ADC = np.zeros(num_channels)
+    
+    for i in range(num_channels):
+        p = np.polyfit(gain[i, :], delta[i, :], 1)
+        sigma_read[i] = p[0]
+        sigma_ADC[i] = p[1]
+    
+    return sigma_read, sigma_ADC
     
     
 def calc_SNR_for_specific_gain(mean,var):
@@ -75,4 +97,15 @@ def calc_SNR_for_specific_gain(mean,var):
           SNR(np.ndarray): the computed SNR vs. mean of the captured image dataset - #(255, Num_gain)
     """
     
-    raise NotImplementedError
+    num_bins = 255
+    SNR = np.zeros(num_bins)
+    
+    mean_flat = mean.flatten()
+    var_flat = var.flatten()
+    
+    for b in range(num_bins):
+        mask = (mean_flat >= b) & (mean_flat < b + 1)
+        if np.any(mask):
+            SNR[b] = np.mean(mean_flat[mask]) / np.sqrt(np.mean(var_flat[mask]))
+    
+    return SNR

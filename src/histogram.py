@@ -27,7 +27,13 @@ def plot_overlayed_hist(data,loc,sensitivity,size):
     """
     y, x = loc
     h, w = size
-    region = data[y:y+h, x:x+w, :, :, :]
+
+    # Ensure the region to be extracted is within bounds
+    y_end = min(y + h, data.shape[0])
+    x_end = min(x + w, data.shape[1])
+    
+    region = data[y:y_end, x:x_end, :, :, :]
+
     plt.figure(figsize=(10, 6))
     for i, sens in enumerate(sensitivity):
         pixel_values = region[:, :, :, :, i].flatten()
@@ -66,7 +72,7 @@ def get_pixel_location(img_shape,N_x,N_y):
     Output:
     
     """
-    height, width = img_shape   
+    height, width = img_shape[:2]
     x_coords = np.linspace(start=width // (N_x + 1), stop=width - width // (N_x + 1), num=N_x)
     y_coords = np.linspace(start=height // (N_y + 1), stop=height - height // (N_y + 1), num=N_y)
     x_coords = np.round(x_coords).astype(np.uint16)

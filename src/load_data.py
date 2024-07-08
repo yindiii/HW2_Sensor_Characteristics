@@ -88,3 +88,10 @@ def load_dataset():
     white_images = np.stack(white_images, axis=-1).transpose((0, 1, 2, 3))
     
     return dark_images, white_images, np.array(sensitivities)
+
+def display_image(image, title="Image"):
+    plt.figure(figsize=(6, 6))
+    plt.imshow(image, cmap='gray')
+    plt.title(title)
+    plt.axis('off')
+    plt.show()

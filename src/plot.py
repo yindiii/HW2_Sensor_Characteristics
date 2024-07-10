@@ -8,16 +8,19 @@ from matplotlib.pyplot import imshow
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 
-def plot_with_colorbar(img,vmax=0):
+def plot_with_colorbar(img, ax=None, vmax=None):
     """
     args:
         vmax: The maximal value to be plotted
     """
-    ax = plt.gca()
-    if(vmax == 0):
-        im = ax.imshow(img, cmap= 'gray')
+    if ax is None:
+        ax = plt.gca()
+    
+    if vmax is None:
+        im = ax.imshow(img, cmap='gray')
     else:
-        im = ax.imshow(img, cmap= 'gray',vmax=vmax)
+        im = ax.imshow(img, cmap='gray', vmax=vmax)
+    
     divider = make_axes_locatable(ax)
     cax = divider.append_axes("right", size="5%", pad=0.05)
     plt.colorbar(im, cax=cax)
@@ -131,11 +134,16 @@ def plot_images(data, sensitivity, statistic,color_channel):
     
     for i, sens in enumerate(sensitivity):
         plt.subplot(1, len(sensitivity), i + 1)
-        plot_with_colorbar(data[:, :, color_channel, i], vmax=255)
-        plt.title(f'{statistic} - Sensitivity {sens}')
+        if statistic == 'standard deviation' or 'variance' in statistic.lower():
+            vmax = np.max(data[:, :, color_channel, i])
+        else:
+            vmax = 255
+        plot_with_colorbar(data[:, :, color_channel, i], vmax=vmax)
+        plt.title(f'{statistic.capitalize()} - Sensitivity {sens}')
     
     plt.tight_layout()
     plt.show()
+
     
     
 def plot_relations(means, variances, skip_pixel, sensitivity, color_idx):
